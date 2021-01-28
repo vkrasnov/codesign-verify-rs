@@ -9,3 +9,17 @@ rust-crypto = { version = "0.2", default-features = false }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 core-foundation = "0.9"
+
+[target.'cfg(windows)'.dependencies]
+winapi = { version = "0.3", features = [ "std",
+                                         "handleapi",
+                                         "processenv",
+                                         "processthreadsapi",
+                                         "softpub",
+                                         "tlhelp32",
+                                         "winbase",
+                                         "winerror",
+                                         "winnt",
+                                         "wincrypt",
+                                         "wintrust",
+                                         "impl-default", "impl-debug" ] }
