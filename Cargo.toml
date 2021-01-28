@@ -1,0 +1,11 @@
+[package]
+name = "codesign-verify"
+version = "0.1.0"
+authors = ["Vlad Krasnov <vlad@cloudflare.com>"]
+edition = "2018"
+
+[dependencies]
+rust-crypto = { version = "0.2", default-features = false }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+core-foundation = "0.9"
