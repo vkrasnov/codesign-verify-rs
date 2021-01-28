@@ -20,9 +20,15 @@ pub struct SignatureContext(Context);
 
 ///
 /// Represents an Issuer or Subject name with the following fields:
+///
+/// # Fields
+///
 /// `common_name`: OID 2.5.4.3
+///
 /// `organization`: OID 2.5.4.10
+///
 /// `organization_unit`: OID 2.5.4.11
+///
 /// `country`: OID 2.5.4.6
 ///
 #[derive(Debug)]
@@ -65,7 +71,7 @@ impl CodeSignVerifier {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```no_run
     /// use codesign_verify::CodeSignVerifier;
     ///
     /// CodeSignVerifier::for_file("C:/Windows/explorer.exe").unwrap().verify().unwrap();
@@ -80,7 +86,7 @@ impl SignatureContext {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```no_run
     /// use codesign_verify::CodeSignVerifier;
     ///
     /// let ctx = CodeSignVerifier::for_file("C:/Windows/explorer.exe").unwrap().verify().unwrap();
