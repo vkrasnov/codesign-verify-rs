@@ -9,7 +9,8 @@ repository = "https://github.com/vkrasnov/codesign-verify-rs"
 keywords = ["macos", "windows", "code", "signature", "authenticode"]
 
 [dependencies]
-rust-crypto = { version = "0.2", default-features = false }
+sha2 = "0.9"
+sha-1 = "0.9.4"
 
 [target.'cfg(target_os = "macos")'.dependencies]
 core-foundation = "0.9"
