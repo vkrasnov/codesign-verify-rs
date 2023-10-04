@@ -31,7 +31,7 @@ pub struct SignatureContext(Context);
 ///
 /// `country`: OID 2.5.4.6
 ///
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Name {
     pub common_name: Option<String>,       // 2.5.4.3
     pub organization: Option<String>,      // 2.5.4.10
@@ -168,12 +168,12 @@ mod tests {
 
         assert_eq!(
             ctx.sha1_thumbprint(),
-            "a4341b9fd50fb9964283220a36a1ef6f6faa7840"
+            "58fd671e2d4d200ce92d6e799ec70df96e6d2664"
         );
 
         assert_eq!(
             ctx.serial().as_deref(),
-            Some("3300000266bd1580efa75cd6d3000000000266")
+            Some("330000041331bc198807a90774000000000413")
         );
     }
 
