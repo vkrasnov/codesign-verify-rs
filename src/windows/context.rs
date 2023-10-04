@@ -1,6 +1,7 @@
 use super::wintrust_sys::*;
-use crate::{Error, Name};
+use crate::Name;
 
+#[allow(non_camel_case_types)]
 #[repr(C)]
 struct CRYPT_PROVIDER_CERT_HDR {
     cbStruct: DWORD,
@@ -19,21 +20,15 @@ impl Drop for Context {
 }
 
 fn close_data(handle: HANDLE) {
-    let mut data = WINTRUST_DATA {
-        cbStruct: std::mem::size_of::<WINTRUST_DATA>() as _,
-        pPolicyCallbackData: std::ptr::null_mut(),
-        pSIPClientData: std::ptr::null_mut(),
-        dwUIChoice: WTD_UI_NONE,
-        fdwRevocationChecks: WTD_REVOKE_NONE,
-        dwUnionChoice: 0,
-        u: Default::default(),
-        dwStateAction: WTD_STATEACTION_CLOSE,
-        hWVTStateData: handle,
-        pwszURLReference: std::ptr::null_mut(),
-        dwProvFlags: 0,
-        dwUIContext: WTD_UICONTEXT_EXECUTE,
-        pSignatureSettings: std::ptr::null_mut(),
-    };
+    // Initialize the WINTRUST_DATA structure
+    let mut data: WINTRUST_DATA = unsafe { std::mem::zeroed() };
+    data.cbStruct = std::mem::size_of::<WINTRUST_DATA>() as u32;
+    data.dwUIChoice = WTD_UI_NONE;
+    data.fdwRevocationChecks = WTD_REVOKE_NONE;
+    data.dwUnionChoice = 0;
+    data.dwStateAction = WTD_STATEACTION_CLOSE;
+    data.dwUIContext = WTD_UICONTEXT_EXECUTE;
+    data.hWVTStateData = handle;
 
     let mut guid = WINTRUST_ACTION_GENERIC_VERIFY_V2;
 
@@ -47,7 +42,7 @@ fn close_data(handle: HANDLE) {
 }
 
 impl Context {
-    pub fn new(state_data: HANDLE) -> Result<Self, Error> {
+    pub fn new(state_data: HANDLE) -> Result<Self, WIN32_ERROR> {
         let mut ret = Context {
             data: state_data,
             leaf_cert_ptr: std::ptr::null(),
@@ -55,17 +50,17 @@ impl Context {
 
         unsafe {
             let crypt_prov_data = match WTHelperProvDataFromStateData(state_data) {
-                data if data.is_null() => return Err(Error::LeafCertNotFound),
+                data if data.is_null() => return Err(TRUST_E_NO_SIGNER_CERT as u32),
                 data => data,
             };
 
             let crypt_prov_sgnr = match WTHelperGetProvSignerFromChain(crypt_prov_data, 0, 0, 0) {
-                sgnr if sgnr.is_null() => return Err(Error::LeafCertNotFound),
+                sgnr if sgnr.is_null() => return Err(TRUST_E_NO_SIGNER_CERT as u32),
                 sgnr => sgnr,
             };
 
             let crypt_prov_cert = match WTHelperGetProvCertFromChain(crypt_prov_sgnr, 0) {
-                cert if cert.is_null() => return Err(Error::LeafCertNotFound),
+                cert if cert.is_null() => return Err(TRUST_E_NO_SIGNER_CERT as u32),
                 cert => cert as *const CRYPT_PROVIDER_CERT_HDR,
             };
 
@@ -139,7 +134,7 @@ impl Context {
 
     pub fn subject_name(&self) -> Name {
         Name {
-            common_name: self.get_oid_name(false, szOID_COMMON_NAME),
+            common_name: self.get_oid_name(false, "2.5.4.3"),
             organization: self.get_oid_name(false, "2.5.4.10"),
             organization_unit: self.get_oid_name(false, "2.5.4.11"),
             country: self.get_oid_name(false, "2.5.4.6"),
@@ -148,7 +143,7 @@ impl Context {
 
     pub fn issuer_name(&self) -> Name {
         Name {
-            common_name: self.get_oid_name(true, szOID_COMMON_NAME),
+            common_name: self.get_oid_name(true, "2.5.4.3"),
             organization: self.get_oid_name(true, "2.5.4.10"),
             organization_unit: self.get_oid_name(true, "2.5.4.11"),
             country: self.get_oid_name(true, "2.5.4.6"),
