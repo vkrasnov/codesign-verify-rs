@@ -64,8 +64,8 @@ impl Verifier {
         } {
             0 => {}
             _ => {
-                let _ = Context::new(data.hWVTStateData); // So close gets called on the data
                 let err = std::io::Error::last_os_error();
+                let _ = Context::new(data.hWVTStateData); // So close gets called on the data
                 if err.raw_os_error() == Some(winapi::shared::winerror::TRUST_E_NOSIGNATURE) {
                     return Err(Error::Unsigned);
                 } else {
