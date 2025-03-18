@@ -1,6 +1,6 @@
 [package]
 name = "codesign-verify"
-version = "0.1.2"
+version = "0.2.0"
 description = "Bindings to the OS utilites for code signature validation."
 authors = ["Vlad Krasnov <vlad@cloudflare.com>"]
 edition = "2018"
