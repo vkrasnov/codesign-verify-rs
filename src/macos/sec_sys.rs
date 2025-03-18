@@ -45,7 +45,7 @@ impl_TCFType!(SecRequirement, SecRequirementRef, SecRequirementGetTypeID);
 impl_CFTypeDescription!(SecRequirement);
 
 #[repr(u32)]
-#[allow(dead_code, non_camel_case_types)]
+#[allow(dead_code, non_camel_case_types, clippy::enum_variant_names)]
 pub enum SecCSFlags {
     kSecCSDefaultFlags = 0,
     kSecCSSigningInformation = 1 << 1,
