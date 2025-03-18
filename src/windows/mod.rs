@@ -45,7 +45,8 @@ impl Verifier {
             pwszURLReference: std::ptr::null_mut(),
             dwProvFlags: WTD_DISABLE_MD2_MD4
                 | WTD_REVOCATION_CHECK_END_CERT
-                | WTD_NO_IE4_CHAIN_FLAG,
+                | WTD_NO_IE4_CHAIN_FLAG
+                | WTD_CACHE_ONLY_URL_RETRIEVAL,
             dwUIContext: WTD_UICONTEXT_EXECUTE,
             pSignatureSettings: std::ptr::null_mut(),
         };
