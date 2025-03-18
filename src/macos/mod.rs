@@ -156,19 +156,32 @@ impl Verifier {
     }
 }
 
+#[allow(clippy::not_unsafe_ptr_arg_deref)]
 impl From<CFErrorRef> for Error {
     fn from(err: CFErrorRef) -> Self {
         if err.is_null() {
             panic!()
         }
+
         unsafe {
             let err = CFError::wrap_under_get_rule(err);
-            Error::CFError(format!(
-                "{:?}",
-                CFDictionary::wrap_under_create_rule(CFErrorCopyUserInfo(
-                    err.as_concrete_TypeRef()
-                )),
-            ))
+
+            let err_dict = CFDictionary::<CFString, CFString>::wrap_under_create_rule(
+                CFErrorCopyUserInfo(err.as_concrete_TypeRef()),
+            );
+
+            if err.code() == -67050 {
+                // code failed to satisfy specified code requirement(s)
+                // in this case code could be unsigned, so check for that
+
+                if err_dict.len() == 1
+                    && err_dict.contains_key(&CFString::from_static_string("SecCSArchitecture"))
+                {
+                    return Error::Unsigned;
+                }
+            }
+
+            Error::CFError(format!("{err_dict:?}"))
         }
     }
 }

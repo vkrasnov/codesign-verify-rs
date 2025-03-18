@@ -23,10 +23,10 @@ enum SecOID {
     Org,
 }
 
-impl Into<CFString> for SecProperty {
-    fn into(self) -> CFString {
+impl From<SecProperty> for CFString {
+    fn from(value: SecProperty) -> Self {
         unsafe {
-            CFString::wrap_under_get_rule(match self {
+            CFString::wrap_under_get_rule(match value {
                 SecProperty::Value => kSecPropertyKeyValue,
                 SecProperty::Label => kSecPropertyKeyLabel,
                 SecProperty::Type => kSecPropertyKeyType,
@@ -35,16 +35,10 @@ impl Into<CFString> for SecProperty {
     }
 }
 
-impl SecProperty {
-    fn to_cfstr(self) -> CFString {
-        self.into()
-    }
-}
-
-impl Into<CFString> for SecOID {
-    fn into(self) -> CFString {
+impl From<SecOID> for CFString {
+    fn from(value: SecOID) -> Self {
         unsafe {
-            CFString::wrap_under_get_rule(match self {
+            CFString::wrap_under_get_rule(match value {
                 SecOID::SubjectName => kSecOIDX509V1SubjectName,
                 SecOID::IssuerName => kSecOIDX509V1IssuerName,
                 SecOID::Serial => kSecOIDX509V1SerialNumber,
@@ -75,13 +69,13 @@ impl Context {
     fn get<T: Into<CFString>>(&self, key: T, wanted_kind: CFString) -> Option<CFType> {
         unsafe {
             let dict = self.dict.find(key.into())?;
-            let kind = dict.find(SecProperty::Type.to_cfstr())?;
+            let kind = dict.find::<CFString>(SecProperty::Type.into())?;
 
             if CFString::wrap_under_get_rule(kind.as_CFTypeRef() as _) != wanted_kind {
                 return None;
             }
 
-            let value = dict.find(SecProperty::Value.to_cfstr())?;
+            let value = dict.find::<CFString>(SecProperty::Value.into())?;
             Some(CFType::wrap_under_get_rule(value.as_CFTypeRef()))
         }
     }
@@ -136,10 +130,10 @@ impl Context {
         let vals = self.get_as_section(field);
         unsafe {
             Name {
-                common_name: vals.as_ref().and_then(|a| Self::get_string(&a, CommonName)),
-                country: vals.as_ref().and_then(|a| Self::get_string(&a, Country)),
-                organization: vals.as_ref().and_then(|a| Self::get_string(&a, Org)),
-                organization_unit: vals.as_ref().and_then(|a| Self::get_string(&a, OrgUnit)),
+                common_name: vals.as_ref().and_then(|a| Self::get_string(a, CommonName)),
+                country: vals.as_ref().and_then(|a| Self::get_string(a, Country)),
+                organization: vals.as_ref().and_then(|a| Self::get_string(a, Org)),
+                organization_unit: vals.as_ref().and_then(|a| Self::get_string(a, OrgUnit)),
             }
         }
     }
