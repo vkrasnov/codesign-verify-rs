@@ -5,7 +5,6 @@ pub use winapi::um::softpub::WINTRUST_ACTION_GENERIC_VERIFY_V2;
 pub use winapi::um::wincrypt::*;
 pub use winapi::um::wintrust::*;
 
-#[link(name = "Wintrust")]
 extern "system" {
     pub fn WTHelperProvDataFromStateData(handle: HANDLE) -> *const std::ffi::c_void;
 
